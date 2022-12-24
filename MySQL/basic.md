@@ -72,6 +72,30 @@ WHERE prod_name REGEXP '1000'; --匹配包含文本'1000'的所有行
 ```
 详细的正则表达式符号和类在`REGEXP.md`中。
 
+## 计算字段
+
+### 拼接字段
+`Concat()`函数用于拼接字段。`Trim() LTrim() RTrim()`用于去除空格。`AS`关键字赋予计算字段一个别名。
+```SQL
+SELECT Concat(RTrim(vend_name), ' (', RTrim(vend_country), ')') AS vend_title
+FROM vendors
+ORDER BY vend_name;
+```
+
+### 执行算术计算
+MySQL中可以用`+ - * /`来对字段执行算术计算。
+```SQL
+SELECT quantity*item_price AS expanded_price
+```
+
+### 数据处理函数
+详情见`functions.md`。
+```SQL
+SELECT Upper(vend_name) AS vend_name_upcase
+```
+
+## 分组数据 
+
 
 
 ```SQL
