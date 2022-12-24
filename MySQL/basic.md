@@ -22,9 +22,11 @@ DESCRIBE 表名; --MySQL支持
 ## SELECT语句
 基本结构
 ```SQL
-SELECT prod_id, prod_name
+SELECT prod_id, prod_name, SUM(prod_price) AS sum_price
 FROM products
 WHERE prod_price <= 10 AND vend_id = 1003
+GROUP BY prod_id
+HAVING COUNT(*) >= 2
 ORDER BY prod_price DESC, prod_name --DESC只作用于它前面的列
 LIMIT 5
 OFFSET 3; --行数从0开始算，偏移3行（即行3开始）
@@ -95,6 +97,32 @@ SELECT Upper(vend_name) AS vend_name_upcase
 ```
 
 ## 分组数据 
+分组允许把数据分为多个逻辑组，以便能对每个组进行聚集计算。使用SELECT语句的`GROUP BY`子句创建分组。例子：
+```SQL
+SELECT vend_id, COUNT(*) AS num_prods
+FROM products
+GROUP BY vend_id;
+```
+`GROUP BY`子句指示MySQL按vend_id排序并分组数据，所以对每个vend_id而不是整个表计算num_prods。即`GROUP BY`子句指示MySQL分组数据，然后对每个组而不是整个结果集进行聚集。
+`GROUP BY`子句有一些重要的规定：
+1. `GROUP BY`子句可以包含任意数目的列，这使得能对分组进行嵌套。
+2. 如果进行了嵌套，数据将在最后的分组上进行汇总。
+3. `GROUP BY`子句中列出的每个列都必须是检索列或者有效的表达式（但不能是聚集函数）。如果在SELECT中使用表达式，则必须在`GROUP BY`子句中指定相同的表达式。不能使用别名。
+4. **除聚集计算语句外，SELECT语句中的每个列都必须在`GROUP BY`子句中给出**。
+5. 如果分组列中具有NULL值，则NULL将作为一个分组返回。如果列中有多行NULL值，它们将分为一组。
+6. `GROUP BY`子句必须出现在WHERE子句之后，ORDER BY子句之前。
+
+MySQL允许过滤分组。使用`HAVING`子句过滤分组。例子：
+```SQL
+SELECT vend_id, COUNT(*) AS num_prods
+FROM products
+GROUP BY vend_id
+HAVING COUNT(*) >= 3;
+```
+`HAVING`子句过滤了COUNT(*) >= 3（总数大于3的供应商）的那些分组。
+
+`WHERE`子句过滤行，在数据分组前进行过滤；`HAVING`子句过滤分组，在数据分组后进行过滤，仅配合`GROUP BY`子句使用。
+
 
 
 
