@@ -123,6 +123,30 @@ HAVING COUNT(*) >= 3;
 
 `WHERE`子句过滤行，在数据分组前进行过滤；`HAVING`子句过滤分组，在数据分组后进行过滤，仅配合`GROUP BY`子句使用。
 
+## 子查询
+子查询常用于IN操作符：
+```SQL
+SELECT cust_name, cust_contact
+FROM customers
+WHERE cust_id IN (SELECT cust_id
+                  FROM orders
+                  WHERE order_num IN (SELECT order_num
+                                      FROM orderitems
+                                      WHERE prod_id = 'TNT2'
+                  ));
+```
+
+### 相关子查询
+另一种常用的子查询用于计算列：
+```SQL
+SELECT cust_name, cust_state, (SELECT COUNT(*)
+                               FROM orders
+                               WHERE orders.cust_id = customers.cust_id) AS orders
+FROM customers
+ORDER BY cust_name;
+```
+customers表中共有五个记录，故子查询进行了五次，每次都告诉SQL对orders表中cust_id与当前customers表中检索的cust_id相同的记录进行一次子查询。
+
 
 
 
