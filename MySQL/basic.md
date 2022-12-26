@@ -147,6 +147,87 @@ ORDER BY cust_name;
 ```
 customers表中共有五个记录，故子查询进行了五次，每次都告诉SQL对orders表中cust_id与当前customers表中检索的cust_id相同的记录进行一次子查询。
 
+## 联结
+
+### 等值联结/内部联结
+
+```SQL
+SELECT vend_name, prod_name, prod_price
+FROM vendors, products
+WHERE vendors.vend_id = products.vend_id
+ORDER BY vend_name, prod_name;
+```
+`FROM`子句中给出了两个表`vendors, products`，两个表用`WHERE`子句正确联结。如果不使用`WHERE`子句提供联结条件，那么返回的结果为笛卡尔积，检索出的行的数目将是第一个表中的行数乘以第二个表中的行数，即第一个表中的每一行都将匹配第二个表中的所有行出现一次。使用了`WHERE`子句提供联结条件后，对于第一个表中的每一行，都将在第二个表中寻找满足联结条件的行进行检索并返回。
+
+上述联结称为等值联结，它基于两个表之间的相等测试，也称为内部联结，可以用下述不同的语法实现：
+```SQL
+SELECT vend_name, prod_name, prod_price
+FROM vendors INNER JOIN products
+ON vendors.vend_id = products.vend_id
+ORDER BY vend_name, prod_name;
+```
+`FROM`子句中两个表之间使用`INNER JOIN`关键字，同时`WHERE`关键字替换为`ON`关键字，返回结果相同。
+
+SQL对一条SELECT语句中可以联结的表的数目没有限制。创建联结的基本规则也相同。首先列出所有表，然后定义表之间的关系。例如：
+```SQL
+SELECT prod_name, vend_name, prod_price, quantity
+FROM orderitems, products, vendors
+WHERE products.vend_id = vendors.vend_id
+    AND orderitems.prod_id = products.prod_id
+    AND order_num = 20005;
+```
+MySQL在运行时关联指定的每个表以处理联结，这种处理可能是非常耗费资源的。不要联结不必要的表，联结的表越多，性能下降越厉害。
+
+### 表别名
+别名还可用于表名，以此缩短SQL语句和允许在单条SELECT语句中多次使用相同的表：
+```SQL
+SELECT prod_name, vend_name, prod_price, quantity
+FROM orderitems AS oi, products AS p, vendors AS v
+WHERE p.vend_id = v.vend_id
+    AND oi.prod_id = p.prod_id
+    AND order_num = 20005;
+```
+与列别名不一样，表别名不返回客户机，仅在查询时使用。
+
+### 自联结
+```SQL
+SELECT p1.prod_id, p1.prod_name
+FROM products AS p1, products AS p2
+WHERE p1.vend_id = p2.vend_id
+    AND p2.prod_id = 'DTNTR';
+```
+上述SQL语句用于找出产品prod_id是'DTNTR'的供应商所提供的其他产品。通过表别名将products表看作不同的两个表p1，p2，使用p2.prod_id = 'DTNTR'过滤数据找出产品的供应商，再通过p1.vend_id = p2.vend_id找出这个供应商在p1表中所提供的其他产品。
+
+### 自然联结
+进行联结时，应该至少有一个列出现在不止一个表中（被联结的列）。标准的联结返回所有数据，甚至相同的列多次出现。自然联结排除多次出现，使每个列只返回一次。由用户完成这项工作：选择那些唯一的列。一般通过对表使用通配符（*），对其他所有表的列使用明确的子集来完成，确保没有相同的列出现：
+```SQL
+SELECT c.*, o.order_num, oi._prod_id
+```
+
+### 外部联结
+外部联结包含了那些在相关表中没有关联行的行。例子：
+```SQL
+SELECT customers.cust_id, orders.order_num
+FROM customers LEFT OUTER JOIN orders
+ON customers.cust_id = orders.cust_id;
+```
+上述SQL语句检索所有客户，包括那些没有订单的客户，并找出该用户的所有订单。结果如下：
+![outer join result](img/outerjoin.png)
+
+其中用户10002并没有任何属于他的订单，但是依旧出现在cust_id列中，由于他没有订单，所以他对应的order_num列是null。
+
+使用`OUTER JOIN`语法时，必须使用`RIGHT`或`LEFT`关键字来指定包括其所有行的表。上述例子使用`LEFT`关键字，所以左边的表customers中的所有行都将返回，因此返回了用户10002。
+
+### 使用带聚集函数的联结
+```SQL
+SELECT customers.cust_id, customers.cust_name, COUNT(orders.order_num) AS num_ord
+FROM customers LEFT OUTER JOIN orders
+ON customers.cust_id = orders.cust_id
+GROUP BY customers.cust_id;
+```
+返回结果为：![join result](img/joinresult.png)
+
+
 
 
 
