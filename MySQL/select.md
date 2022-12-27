@@ -1,24 +1,5 @@
 # MySQL
 
-## 显示数据库和表信息
-显示所有的数据库
-```SQL
-SHOW DATABASES;
-```
-选择数据库
-```SQL
-USE 数据库名; 
-```
-显示数据库中所有的表
-```SQL
-SHOW TABLES;
-```
-显示某个表中的所有字段信息
-```SQL
-SHOW COLUMNS FROM 表名;
-DESCRIBE 表名; --MySQL支持
-```
-
 ## SELECT语句
 基本结构
 ```SQL
@@ -227,10 +208,21 @@ GROUP BY customers.cust_id;
 ```
 返回结果为：![join result](img/joinresult.png)
 
-
-
-
-
+## 组合查询
+`UNION`关键字用于组合多条SELECT查询语句。`UNION`语句几乎总是完成与多个WHERE条件相同的工作。例子：
 ```SQL
-
+SELECT vend_id, prod_id, prod_price
+FROM products
+WHERE prod_price <= 5
+UNION
+SELECT vend_id, prod_id, prod_price
+FROM products
+WHERE vend_id IN (1001,1002);
 ```
+UNION使用规则：
+
+1. UNION必须由两条以上的SELECT语句组成，语句之间用UNION分隔
+2. UNION中的每个查询必须包含相同的列、表达式或聚集函数（可以不同次序）
+3. 列数据类型必须兼容，不必完全相同
+4. UNION自动取消了重复的行，如果想要返回所有匹配行，可使用`UNION ALL`
+5. 在用UNION组合查询时，只能使用一条`ORDER BY`子句，它必须出现在最后一条SELECT语句之后。
