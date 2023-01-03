@@ -22,7 +22,7 @@ go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
 protoc .\ecommerce\product_info.proto --go_out=".\ecommerce\" --go-grpc_out=".\ecommerce\"
 // protoc <proto文件路径> --go_out=<输出go代码文件夹> --go-grpc_out=<输出go代码文件夹> 
 // go_out参数用protoc-gen-go.exe生成go代码，代码中包含Message（消息）的相关定义
-// go-grpc_out参数用protoc-gen-go-grpc.exe生成gRPC相关的go代码，代码中包含Service（服务）的相关定义
+// go-grpc_out参数用protoc-gen-go-grpc.exe生成gRPC相关的go代码，代码中包含Service（服务）服务器和客户端方法的相关定义
 ```
 5. 输出go代码文件夹将与proto文件中的go_package指定的路径拼接，比如go_out="./ecommerce/"，go_package="./"，生成的代码在"./ecommerce/xxx.go"；如果go_package="./service"，生成的代码在"./ecommerce/service/xxx.go"
 
